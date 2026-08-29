@@ -140,10 +140,11 @@ def library():
 
     tr = request.args.get("transcript")
     has_transcript = {"yes": True, "no": False}.get(tr)
+    untagged = request.args.get("untagged") == "1"
 
     rows, total = store.search_videos(
         conn, g.user["id"], q=q, creator=creator, genre=genre, status=status,
-        has_transcript=has_transcript, sort=sort,
+        has_transcript=has_transcript, untagged=untagged, sort=sort,
         limit=PER_PAGE, offset=(page - 1) * PER_PAGE,
     )
     genres, creators = store.facets(conn, g.user["id"], genre=genre, creator=creator)
@@ -154,7 +155,7 @@ def library():
         videos=rows, total=total, page=page,
         pages=max(1, math.ceil(total / PER_PAGE)),
         q=q, creator=creator, genre=genre, status=status, sort=sort,
-        transcript=tr, genres=genres, creators=creators, stats=stats,
+        transcript=tr, untagged=untagged, genres=genres, creators=creators, stats=stats,
     )
 
 

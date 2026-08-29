@@ -63,12 +63,13 @@
       </div>
     </div>
 
-    {% if creator or genre or status or transcript %}
+    {% if creator or genre or status or transcript or untagged %}
     <div class="chips">
       {% if creator %}<a class="chip" href="{{ url_with(creator='') }}">creator: {{ creator }} <span>&times;</span></a>{% endif %}
       {% if genre %}<a class="chip" href="{{ url_with(genre='') }}">genre: {{ genre }} <span>&times;</span></a>{% endif %}
       {% if status %}<a class="chip" href="{{ url_with(status='') }}">status: {{ status }} <span>&times;</span></a>{% endif %}
       {% if transcript %}<a class="chip" href="{{ url_with(transcript='') }}">transcript: {{ transcript }} <span>&times;</span></a>{% endif %}
+      {% if untagged %}<a class="chip" href="{{ url_with(untagged='') }}">genre: not yet tagged <span>&times;</span></a>{% endif %}
     </div>
     {% endif %}
 

@@ -182,7 +182,8 @@ SORTS = {
 
 
 def search_videos(conn, user_id, q="", creator=None, genre=None, status=None,
-                  has_transcript=None, sort="relevance", limit=48, offset=0):
+                  has_transcript=None, untagged=False, sort="relevance",
+                  limit=48, offset=0):
     """Filtered + ranked search. Returns (rows, total_count)."""
     params = [user_id]
     joins = ""
@@ -206,6 +207,8 @@ def search_videos(conn, user_id, q="", creator=None, genre=None, status=None,
     if genre:
         where.append("v.genre = ?")
         params.append(genre)
+    elif untagged:
+        where.append("(v.genre IS NULL OR v.genre = '')")
     if status:
         where.append("v.status = ?")
         params.append(status)

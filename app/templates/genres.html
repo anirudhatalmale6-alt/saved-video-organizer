@@ -12,7 +12,7 @@
     </a>
     {% endfor %}
     {% if unsorted_n %}
-    <a class="genrecard unsorted" href="{{ url_for('views.library', genre='') }}">
+    <a class="genrecard unsorted" href="{{ url_for('views.library', untagged=1) }}">
       <b>Not yet tagged</b>
       <span class="big">{{ '{:,}'.format(unsorted_n) }}</span>
       <span class="sub">waiting on enrich / transcribe</span>
