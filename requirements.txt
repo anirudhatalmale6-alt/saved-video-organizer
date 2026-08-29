@@ -1,0 +1,15 @@
+Flask>=3.0
+passlib>=1.7.4
+bcrypt>=4.0
+
+# Step 2 + 3 (metadata fetch and audio download)
+yt-dlp>=2024.1.1
+
+# Step 3, local transcription. Skip if you use --engine api.
+# faster-whisper>=1.0
+
+# Optional: --engine api transcription
+# openai>=1.30
+
+# Optional: --mode llm genre tagging
+# anthropic>=0.40

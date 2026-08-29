@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{% if q %}{{ q }}{% else %}Library{% endif %}{% endblock %}
+
+
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="stats">
+      <div class="stat"><b>{{ '{:,}'.format(stats.total) }}</b><span>saved videos</span></div>
+      <div class="stat"><b>{{ '{:,}'.format(stats.creators) }}</b><span>creators</span></div>
+      <div class="stat"><b>{{ '{:,}'.format(stats.transcribed) }}</b><span>transcribed</span></div>
+      <div class="stat"><b>{{ '{:,}'.format(stats.unavailable) }}</b><span>unavailable</span></div>
+    </div>
+
+    <h3>Genres</h3>
+    <ul class="facet">
+      <li><a href="{{ url_with(genre='') }}" class="{% if not genre %}on{% endif %}">All genres</a></li>
+      {% for gr in genres %}
+      <li><a href="{{ url_with(genre=gr.name) }}" class="{% if genre==gr.name %}on{% endif %}">
+        <span class="dot" style="--h:{{ gr.name|thumbhue }}"></span>{{ gr.name }} <em>{{ gr.n }}</em></a></li>
+      {% endfor %}
+    </ul>
+
+    <h3>Creators <a class="seeall" href="{{ url_for('views.creators') }}">see all</a></h3>
+    <ul class="facet">
+      <li><a href="{{ url_with(creator='') }}" class="{% if not creator %}on{% endif %}">All creators</a></li>
+      {% for c in creators[:20] %}
+      <li><a href="{{ url_with(creator=c.handle) }}" class="{% if creator==c.handle %}on{% endif %}">
+        {{ c.handle }} <em>{{ c.n }}</em></a></li>
+      {% endfor %}
+    </ul>
+
+    <h3>Filters</h3>
+    <ul class="facet">
+      <li><a href="{{ url_with(transcript='yes') }}" class="{% if transcript=='yes' %}on{% endif %}">Has transcript</a></li>
+      <li><a href="{{ url_with(transcript='no') }}" class="{% if transcript=='no' %}on{% endif %}">Not transcribed yet</a></li>
+      <li><a href="{{ url_with(status='unavailable') }}" class="{% if status=='unavailable' %}on{% endif %}">Deleted / private</a></li>
+      <li><a href="{{ url_for('views.library') }}">Clear all filters</a></li>
+    </ul>
+  </aside>
+
+  <main class="results">
+    <div class="resulthead">
+      <div>
+        <h1>
+          {% if q %}{{ '{:,}'.format(total) }} results for &ldquo;{{ q }}&rdquo;
+          {% elif genre %}{{ genre }}
+          {% elif creator %}{{ creator }}
+          {% else %}Your library{% endif %}
+        </h1>
+        <p class="sub">
+          {% if not q %}{{ '{:,}'.format(total) }} videos{% endif %}
+          {% if creator and not q %} from {{ creator }}{% endif %}
+          {% if genre and q %} &middot; in {{ genre }}{% endif %}
+        </p>
+      </div>
+      <div class="sorts">
+        {% for key, label in [('relevance','Best match'), ('recent','Newest saved'), ('oldest','Oldest saved'), ('creator','By creator'), ('longest','Longest')] %}
+          {% if key != 'relevance' or q %}
+          <a href="{{ url_with(sort=key) }}" class="{% if sort==key %}on{% endif %}">{{ label }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if creator or genre or status or transcript %}
+    <div class="chips">
+      {% if creator %}<a class="chip" href="{{ url_with(creator='') }}">creator: {{ creator }} <span>&times;</span></a>{% endif %}
+      {% if genre %}<a class="chip" href="{{ url_with(genre='') }}">genre: {{ genre }} <span>&times;</span></a>{% endif %}
+      {% if status %}<a class="chip" href="{{ url_with(status='') }}">status: {{ status }} <span>&times;</span></a>{% endif %}
+      {% if transcript %}<a class="chip" href="{{ url_with(transcript='') }}">transcript: {{ transcript }} <span>&times;</span></a>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if not videos %}
+      <div class="empty">
+        <p>No videos match that.</p>
+        <p class="sub">Try a shorter search, or <a href="{{ url_for('views.library') }}">clear the filters</a>.</p>
+      </div>
+    {% endif %}
+
+    <div class="grid">
+      {% for v in videos %}
+      <a class="card" href="{{ url_for('views.video', video_id=v.id) }}?q={{ q|urlencode }}">
+        <div class="thumb" style="--h:{{ v.creator_handle|thumbhue }}">
+          {% if v.thumbnail_url %}<img src="{{ v.thumbnail_url }}" alt="" loading="lazy">{% endif %}
+          <span class="dur">{{ v.duration|mmss }}</span>
+          {% if v.status == 'unavailable' %}<span class="badge gone">unavailable</span>
+          {% elif v.transcript %}<span class="badge tr">transcript</span>{% endif %}
+        </div>
+        <div class="meta">
+          <div class="handle">{{ v.creator_handle }}</div>
+          <div class="caption">{{ highlight(v.caption, q, 90) }}</div>
+          {% if q and v.transcript %}
+            {% set snip = highlight(v.transcript, q, 120) %}
+            {% if snip %}<div class="tsnip">&ldquo;{{ snip }}&rdquo;</div>{% endif %}
+          {% endif %}
+          <div class="cardfoot">
+            {% if v.genre %}<span class="tag" style="--h:{{ v.genre|thumbhue }}">{{ v.genre }}</span>{% endif %}
+            <span class="date">{{ v.saved_at|shortdate }}</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if pages > 1 %}
+    <nav class="pager">
+      {% if page > 1 %}<a href="{{ url_with(page=page-1) }}">&larr; Previous</a>{% endif %}
+      <span>Page {{ page }} of {{ '{:,}'.format(pages) }}</span>
+      {% if page < pages %}<a href="{{ url_with(page=page+1) }}">Next &rarr;</a>{% endif %}
+    </nav>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

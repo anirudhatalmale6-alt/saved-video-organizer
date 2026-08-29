@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body %}
+<div class="authwrap">
+  <form class="authcard" method="post">
+    <div class="brand big"><span class="brand-mark"></span> Saved Organizer</div>
+    <p class="sub">Your saved videos, sorted by creator and genre, searchable down to the spoken word.</p>
+    <label>Email
+      <input type="email" name="email" required autofocus autocomplete="username">
+    </label>
+    <label>Password
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button type="submit">Sign in</button>
+    {% if no_users %}
+      <p class="sub center">No account yet? <a href="{{ url_for('auth.register') }}">Create the owner account</a>.</p>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

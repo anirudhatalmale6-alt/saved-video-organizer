@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Creators{% endblock %}
+{% block body %}
+<div class="page">
+  <h1>Creators <span class="sub">{{ '{:,}'.format(creators|length) }} in your library</span></h1>
+  <input type="search" id="filterlist" placeholder="Filter creators..." aria-label="Filter creators">
+  <table class="tbl" id="creatortbl">
+    <thead><tr><th>Creator</th><th>Mostly</th><th class="num">Videos</th><th class="num">Transcribed</th><th>Last saved</th></tr></thead>
+    <tbody>
+      {% for c in creators %}
+      <tr>
+        <td><a href="{{ url_for('views.library', creator=c.handle) }}">{{ c.handle }}</a>
+            {% if c.name %}<span class="sub">{{ c.name }}</span>{% endif %}</td>
+        <td>{% if c.top_genre %}<span class="tag" style="--h:{{ c.top_genre|thumbhue }}">{{ c.top_genre }}</span>{% endif %}</td>
+        <td class="num">{{ '{:,}'.format(c.n) }}</td>
+        <td class="num">{{ '{:,}'.format(c.transcribed or 0) }}</td>
+        <td class="sub">{{ c.last_saved|shortdate }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

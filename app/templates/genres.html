@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Genres{% endblock %}
+{% block body %}
+<div class="page">
+  <h1>Genres <span class="sub">auto-tagged from caption, hashtags and transcript</span></h1>
+  <div class="genregrid">
+    {% for gr in genres %}
+    <a class="genrecard" style="--h:{{ gr.name|thumbhue }}" href="{{ url_for('views.library', genre=gr.name) }}">
+      <b>{{ gr.name }}</b>
+      <span class="big">{{ '{:,}'.format(gr.n) }}</span>
+      <span class="sub">{{ gr.creators }} creators &middot; {{ (gr.seconds / 3600)|round(1) }} h</span>
+    </a>
+    {% endfor %}
+    {% if unsorted_n %}
+    <a class="genrecard unsorted" href="{{ url_for('views.library', genre='') }}">
+      <b>Not yet tagged</b>
+      <span class="big">{{ '{:,}'.format(unsorted_n) }}</span>
+      <span class="sub">waiting on enrich / transcribe</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

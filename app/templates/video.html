@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ v.creator_handle }}{% endblock %}
+{% block body %}
+<div class="detail">
+  <a class="back" href="{{ url_for('views.library') }}{% if q %}?q={{ q|urlencode }}{% endif %}">&larr; Back to results</a>
+
+  <h1>{{ v.caption or '(no caption)' }}</h1>
+  <div class="detailmeta">
+    <a class="handle" href="{{ url_for('views.library', creator=v.creator_handle) }}">{{ v.creator_handle }}</a>
+    {% if v.creator_name %}<span class="sub">{{ v.creator_name }}</span>{% endif %}
+    {% if v.genre %}<a class="tag" style="--h:{{ v.genre|thumbhue }}"
+         href="{{ url_for('views.library', genre=v.genre) }}">{{ v.genre }}</a>{% endif %}
+    <span class="sub">{{ v.duration|mmss }}</span>
+    <span class="sub">saved {{ v.saved_at|shortdate }}</span>
+    {% if v.status != 'unavailable' %}
+      <a class="openlink" href="{{ v.url }}" target="_blank" rel="noopener noreferrer">Open on TikTok &nearr;</a>
+    {% endif %}
+  </div>
+
+  <div class="detailgrid">
+    <div class="player">
+      <div class="playerbox" style="--h:{{ v.creator_handle|thumbhue }}">
+        {% if v.thumbnail_url %}<img src="{{ v.thumbnail_url }}" alt="">{% endif %}
+        {% if v.status == 'unavailable' %}
+          <div class="gonebox">
+            <b>No longer on TikTok</b>
+            <p>{{ v.status_note or 'The creator deleted this video or made their account private after you saved it.' }}</p>
+            <p class="sub">Your saved record, caption and transcript are kept here.</p>
+          </div>
+        {% else %}
+          <a class="playbtn" href="{{ v.url }}" target="_blank" rel="noopener noreferrer">Open on TikTok &nearr;</a>
+        {% endif %}
+      </div>
+
+      {% set tags = v.hashtags|hashtags %}
+      {% if tags %}
+      <div class="tags">
+        {% for t in tags %}<a href="{{ url_for('views.library', q=t) }}">#{{ t }}</a>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="transcript">
+      <div class="thead">
+        <h2>Transcript</h2>
+        {% if v.transcript %}
+          <span class="sub">{{ v.transcript_lang or 'auto' }} &middot; {{ v.transcript.split()|length }} words</span>
+        {% endif %}
+      </div>
+
+      {% if not v.transcript %}
+        <div class="empty small">
+          <p>Not transcribed yet.</p>
+          <p class="sub">Run the transcribe step for this video and the text appears here,
+             timecoded and searchable.</p>
+        </div>
+      {% else %}
+        <input type="search" id="tfind" placeholder="Find in transcript..." aria-label="Find in transcript">
+        <div class="tlines" id="tlines">
+          {% set segs = v.segments|segments %}
+          {% if segs %}
+            {% for s in segs %}
+            <p class="tline">
+              <a class="ts" href="{{ v.url }}" target="_blank" rel="noopener noreferrer">{{ s.start|int|mmss }}</a>
+              <span>{{ s.text }}</span>
+            </p>
+            {% endfor %}
+          {% else %}
+            <p class="tline"><span>{{ v.transcript }}</span></p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+
+  {% if more %}
+  <h3 class="morehead">More from {{ v.creator_handle }}</h3>
+  <div class="morerow">
+    {% for m in more %}
+    <a class="mini" href="{{ url_for('views.video', video_id=m.id) }}" title="{{ m.caption }}">
+      <div class="thumb" style="--h:{{ m.creator_handle|thumbhue }}">
+        {% if m.thumbnail_url %}<img src="{{ m.thumbnail_url }}" alt="" loading="lazy">{% endif %}
+        <span class="dur">{{ m.duration|mmss }}</span>
+      </div>
+      <span>{{ m.caption[:44] }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
